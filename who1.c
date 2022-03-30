@@ -9,27 +9,42 @@
 
 #define SHOWHOST
 
+void show_info(struct utmp*);
+void showtime(long);
+int utmp_open(char*);
+struct utmp* utmp_next();
+int utmp_reload();
+void utmp_close();
+
 int main()
 {
-	struct utmp current_record;
-	int	utmpfd = -1;
-	int reclen = sizeof(current_record);
-	void show_info(struct utmp*);
+	//struct utmp current_record;
+	//int	utmpfd = -1;
+	//int reclen = sizeof(current_record);
 
-	if ((utmpfd = open(UTMP_FILE, O_RDONLY)) == -1)
+	//if ((utmpfd = open(UTMP_FILE, O_RDONLY)) == -1)
+	//{
+	//	perror(UTMP_FILE);
+	//	exit(1);
+	//}
+	//while (read(utmpfd, &current_record, reclen) == reclen)
+		//show_info(&current_record);
+	struct utmp* utbufp;
+	struct utmp* utmp_next();
+	if (utmp_open(UTMP_FILE) == -1)
 	{
 		perror(UTMP_FILE);
 		exit(1);
 	}
-	while (read(utmpfd, &current_record, reclen) == reclen)
-		show_info(&current_record);
-	close(utmpfd);
+	while ((utbufp = utmp_next()) != (struct utmp*)NULL)
+		show_info(utbufp);
+	utmp_close();
+	//close(utmpfd);
 	return 0;
 }
 
 void show_info(struct utmp* utmpfp)
 {
-	void showtime(long);
 	if (utmpfp->ut_type != USER_PROCESS)
 		return ;
 	printf("%-8.8s", utmpfp->ut_user);
