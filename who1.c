@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define SHOWHOST
 
@@ -28,14 +29,25 @@ int main()
 
 void show_info(struct utmp* utmpfp)
 {
+	void showtime(long);
+	if (utmpfp->ut_type != USER_PROCESS)
+		return ;
 	printf("%-8.8s", utmpfp->ut_user);
 	printf(" ");
 	printf("%-8.8s", utmpfp->ut_line);
 	printf(" ");
-	printf("%10ld", utmpfp->ut_tv);
+	showtime(utmpfp->ut_time);
 	printf(" ");
 #ifdef SHOWHOST
-	printf("(%s)", utmpfp->ut_host);
+	if (utmpfp->ut_host[0] != '\0')
+		printf("(%s)", utmpfp->ut_host);
 #endif
 	printf("\n");
+}
+
+void showtime(long timeval)
+{
+	char* cp = NULL;
+	cp = ctime(&timeval);
+	printf("%12.12s", cp+4);
 }
