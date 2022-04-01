@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #define BUFFERSIZE 4096
 #define COPYMODE 0644
@@ -23,17 +24,24 @@ int main(int ac, char* av[])
 
 	if ((in_fd = open(av[1], O_RDONLY)) == -1)
 		oops("Cannot open", av[1]);
-	if ((out_fd = creat(av[2], COPYMODE)) == -1)
+	if ((out_fd = open(av[2], O_CREAT|O_WRONLY|O_EXCL, COPYMODE)) == -1)
+	{
+		if (errno == EEXIST)
+		{
+			printf("cp1: '%s' and '%s' are the same file\n", av[1], av[2]);
+			exit(1);
+		}
 		oops("Cannot creat", av[2]);
+	}
 	while ((n_chars = read(in_fd, buf, BUFFERSIZE)) > 0)
 		if (write(out_fd, buf, n_chars) != n_chars)
 			oops("Write error to", av[2]);
 	if (n_chars == -1)
 		oops("Read error from", av[1]);
-
 	if (close(in_fd) == -1 || close(out_fd) == -1)
 		oops("Error closing files", "");
 	return 0;
+
 }
 
 void oops(char* s1, char* s2)
