@@ -23,15 +23,21 @@ int utmp_open(char* filename)
 
 struct utmp* utmp_next()
 {
+	int isEffective = -1;
 	int utmp_reload();
 	struct utmp* recp = NULL;
-	if (fd_utmp == -1)
-		return NULLUT;
-	if (cur_rec == num_recs && utmp_reload() == 0)
-		return NULLUT;
+	while (isEffective == -1)
+	{
+		if (fd_utmp == -1)
+			return NULLUT;
+		if (cur_rec == num_recs && utmp_reload() == 0)
+			return NULLUT;
 
-	recp = (struct utmp*)&utmpbuf[cur_rec*UTSIZE];
-	cur_rec++;
+		recp = (struct utmp*)&utmpbuf[cur_rec*UTSIZE];
+		cur_rec++;
+		if (recp->ut_type == USER_PROCESS)
+			isEffective = 0;
+	}
 	return recp;
 }
 
