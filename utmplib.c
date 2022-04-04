@@ -44,8 +44,18 @@ int utmp_reload()
 	return num_recs;
 }
 
+int utmp_seek(off_t record_offset, int base)
+{
+	return lseek(fd_utmp, record_offset, base);
+}
+
 void utmp_close()
 {
 	if (fd_utmp != -1)
 		close(fd_utmp);
+}
+
+ssize_t utmp_write(const void* buf, size_t count)
+{
+	return write(fd_utmp, buf, count);
 }
