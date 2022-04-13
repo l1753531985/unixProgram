@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <time.h>
 #include <sys/stat.h>
@@ -8,9 +9,32 @@ void show_modtime(long time)
 	printf("	modtime: %12.12s\n", ctime(&time)+4);
 }
 
+void mode_to_letter(int mode, char str[])
+{
+	strcpy(str, "----------");
+
+	if (S_ISDIR(mode)) str[0] = 'd';
+	if (S_ISCHR(mode)) str[0] = 'c';
+	if (S_ISBLK(mode)) str[0] = 'b';
+
+	if (mode & S_IRUSR) str[1] = 'r';
+	if (mode & S_IWUSR) str[2] = 'w';
+	if (mode & S_IXUSR) str[3] = 'x';
+
+	if (mode & S_IRGRP) str[4] = 'r';
+	if (mode & S_IWGRP) str[5] = 'w';
+	if (mode & S_IXGRP) str[6] = 'x';
+
+	if (mode & S_IROTH) str[7] = 'r';
+	if (mode & S_IWOTH) str[8] = 'w';
+	if (mode & S_IXOTH) str[9] = 'x';
+}
+
 void show_stat_info(char* fname, struct stat* buf)
 {
-	printf("	mode: %o\n", buf->st_mode);
+	char mode[10];
+    mode_to_letter(buf->st_mode, mode); 	
+	printf("%s\n", mode);
 	printf("	links: %d\n", buf->st_nlink);
 	printf("	user: %d\n", buf->st_uid);
 	printf("	group: %d\n", buf->st_gid);
